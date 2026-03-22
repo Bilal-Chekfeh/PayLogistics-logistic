@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: logistic_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+  localstack:
+    image: localstack/localstack:3
+    ports:
+      - "4566:4566"
+    volumes:
+      - ./localstack-init.sh:/etc/localstack/init/ready.d/init.sh
+    environment:
+      SERVICES: s3,sqs,sns
+      DEBUG: 0
+  api:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+    volumes:
+      - gems:/usr/local/bundle
+      - ~/.ssh:/root/.ssh
+      - .:/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+      - localstack
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/logistic_development
+      RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      AWS_ENDPOINT_URL: http://localstack:4566
+    tty: true
+    stdin_open: true
+
+volumes:
+  postgres_data:
+  gems:
