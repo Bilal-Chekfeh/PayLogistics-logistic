@@ -35,7 +35,7 @@ gem "image_processing", "~> 1.2"
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 # gem "rack-cors"
 
-gem "aws-sdk-s3", "~> 1.217"
+gem "aws-sdk-s3", "~> 1.218"
 gem "aws-sdk-sqs", "~> 1.112"
 
 group :development, :test do
